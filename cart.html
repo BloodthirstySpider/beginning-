@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cart</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <style>
+        .active{
+            background-color: #eee;
+        }
+    </style>
+</head>
+<body>
+    <!-- 宿主文件 -->
+    <div id="app">
+        <h2 :title="title">{{title}}</h2>
+        <vegetable-add :vegetables="vegetables" @add-new="addNew"></vegetable-add>
+        <vegetable-list :vegetables="vegetables"></vegetable-list>
+    </div> 
+ 
+    <script src="vue.js"></script>
+    <script>
+        Vue.component('vegetable-add', {
+            props:{
+                vegetables:{
+                    type:Array,
+                    default:[]
+                },
+                addV:{
+                    type:Function,
+                }
+            },
+            data() {
+                return {
+                    newSpecies: '',
+                }
+            },
+            methods: {
+                add() {
+                    this.vegetables.push(this.newSpecies);
+                    this.newSpecies = '';
+                },
+                addNew(){
+                    this.$emit('add-new', this.newSpecies);
+                    this.newSpecies = '';
+                },
+            },
+            template:
+            `<div>
+                <input v-model="newSpecies" type="text" @keydown.enter="addNew"/>
+                <button @click="addNew">add</button>
+            </div>`
+        })
+        Vue.component('vegetable-list', {
+            data() {
+                return {
+                    selected: null,
+                }
+            },
+            props:{
+                vegetables:{
+                    type: Array,
+                    default: []
+                }
+            },
+            computed: {
+                total() {
+                    return this.vegetables.length; 
+                }
+            },
+            template:`
+                <div>
+                    <div v-if="vegetables.length==0">no data</div>
+                    <div 
+                        v-else
+                        :class="{ active: selected===e }" 
+                        :key="e"
+                        v-for="e in vegetables" 
+                        @mouseenter="selected=e"
+                        @mouseleave="selected=undefined"
+                    >{{ e }}</div>
+                    <p>{{ total }}</p>
+                </div>
+            `
+        });
+        const getData = ()=>{
+            return new Promise(resolve=>{
+                setTimeout(() => {
+                    resolve(['potato','tomato']);
+                }, 500);
+            })
+        };
+        const app = new Vue({
+            el: '#app',
+            data() {
+                return {
+                    title: 'vegetables',
+                    newSpecies: null,
+                    vegetables: [],
+                }
+            },
+            methods: {
+                addNew(e) {
+                    this.vegetables.push(e);
+                }
+            },
+            async created(){
+                this.vegetables = await getData();
+            },
+        });
+        
+    </script>
+</body>
+</html>
