@@ -14,44 +14,92 @@
 <body>
     <!-- 宿主文件 -->
     <div id="app">
+
         <h2 :title="title">{{title}}</h2>
-        <vegetable-add :vegetables="vegetables" @add-new="addNew"></vegetable-add>
+
+        <vegetable-add v-model="newSpecies" @add-new="add"></vegetable-add>
+
+        <vegetable-add2 :arr="vegetables"></vegetable-add2>
+
+        <vegetable-add3 @add-new='addNew'></vegetable-add3>
+
         <vegetable-list :vegetables="vegetables"></vegetable-list>
+
     </div> 
  
     <script src="vue.js"></script>
     <script>
-        Vue.component('vegetable-add', {
-            props:{
-                vegetables:{
-                    type:Array,
-                    default:[]
-                },
-                addV:{
-                    type:Function,
-                }
-            },
+        Vue.component('vegetable-add3', {
             data() {
                 return {
-                    newSpecies: '',
+                    newV: ''
                 }
             },
+            props:['arr'],
             methods: {
                 add() {
-                    this.vegetables.push(this.newSpecies);
-                    this.newSpecies = '';
-                },
-                addNew(){
-                    this.$emit('add-new', this.newSpecies);
-                    this.newSpecies = '';
-                },
+                    this.$emit('add-new', this.newV)
+                    this.newV = '';
+                }
             },
             template:
             `<div>
-                <input v-model="newSpecies" type="text" @keydown.enter="addNew"/>
-                <button @click="addNew">add</button>
+                <input 
+                    v-model="newV"
+                    type="text" 
+                    @keydown.enter="add"
+                />
+                <button @click="add">add3</button>
             </div>`
-        })
+        });
+
+        Vue.component('vegetable-add2', {
+            data() {
+                return {
+                    newV: ''
+                }
+            },
+            props:['arr'],
+            methods: {
+                add() {
+                    this.arr.push(this.newV);
+                    this.newV = '';
+                }
+            },
+            template:
+            `<div>
+                <input 
+                    v-model="newV"
+                    type="text" 
+                    @keydown.enter="add"
+                />
+                <button @click="add">add2</button>
+            </div>`
+        });
+
+        Vue.component('vegetable-add', {
+            props: ['value'],
+            methods: {
+                add(){
+                    this.$emit('add-new');
+
+                },
+                onInput(e){
+                    this.$emit('input', e.target.value);
+                }
+            },
+            template:
+            `<div>
+                <input 
+                    type="text" 
+                    :value="value" 
+                    @input="onInput"
+                    @keydown.enter="add"
+                />
+                <button @click="add">add</button>
+            </div>`
+        });
+
         Vue.component('vegetable-list', {
             data() {
                 return {
@@ -84,32 +132,27 @@
                 </div>
             `
         });
-        const getData = ()=>{
-            return new Promise(resolve=>{
-                setTimeout(() => {
-                    resolve(['potato','tomato','carrot']);
-                }, 500);
-            })
-        };
+
         const app = new Vue({
             el: '#app',
             data() {
                 return {
                     title: 'vegetables',
                     newSpecies: null,
-                    vegetables: [],
+                    vegetables: ['potato','tomato','carrot'],
                 }
             },
             methods: {
-                addNew(e) {
+                add() {
+                    this.vegetables.push(this.newSpecies);
+                    this.newSpecies = '';
+                },
+                addNew(e){
                     this.vegetables.push(e);
                 }
             },
-            async created(){
-                this.vegetables = await getData();
-            },
         });
-        
+
     </script>
 </body>
 </html>
