@@ -9,11 +9,31 @@
         .active{
             background-color: #eee;
         }
+        .message-box{
+            padding: 0 20px;
+            background-color:#ddd;
+            border: 1px solid #333;
+            border-radius: 3px;
+            position: relative;
+        }
+        .message-box-close{
+            position: absolute;
+            right: 20px;
+            top: 10px;
+        } 
     </style>
 </head>
 <body>
     <!-- 宿主文件 -->
     <div id="app">
+        <message :fckingshow.sync="isShow" @close="isShow=$event">
+            <template v-slot:title="slotProps">
+                <h4>{{slotProps.title}}</h4>
+            </template>
+            <template>
+                <p>added successfully</p>
+            </template>
+        </message>
 
         <h2 :title="title">{{title}}</h2>
 
@@ -29,6 +49,17 @@
  
     <script src="vue.js"></script>
     <script>
+        Vue.component('message', {
+            props:['fckingshow'],
+            template:`
+                <div class="message-box" v-if="fckingshow">
+                    <slot name="title" title="what the fck"></slot>
+                    <slot></slot>
+                    <i class="message-box-close" @click="$emit('update:fckingshow', false)">X</i>
+                </div>
+            `
+        })
+
         Vue.component('vegetable-add3', {
             data() {
                 return {
@@ -140,12 +171,14 @@
                     title: 'vegetables',
                     newSpecies: null,
                     vegetables: ['potato','tomato','carrot'],
+                    isShow: false,
                 }
             },
             methods: {
                 add() {
                     this.vegetables.push(this.newSpecies);
                     this.newSpecies = '';
+                    this.isShow = true;
                 },
                 addNew(e){
                     this.vegetables.push(e);
